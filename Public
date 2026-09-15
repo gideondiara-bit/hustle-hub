@@ -1,0 +1,482 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>HUSTLE HUB — Privacy Mail</title>
+<style>
+:root{--bg:#03111d;--card:#071d2c;--line:#12384f;--text:#edf8ff;--muted:#8eacbd;--green:#36f078;--blue:#24a9ff;--red:#ff6262;--amber:#ffc857}
+*{box-sizing:border-box}body{margin:0;background:radial-gradient(circle at 80% 5%,#063451 0,#03111d 38%,#020a11 100%);font-family:Arial,system-ui,sans-serif;color:var(--text);min-height:100vh}
+header{position:sticky;top:0;background:#03111deb;border-bottom:1px solid var(--line);backdrop-filter:blur(10px);z-index:5}
+.nav{max-width:1120px;margin:auto;padding:13px 18px;display:flex;align-items:center;justify-content:space-between}
+.brand{font-size:23px;font-weight:900}.brand span{color:var(--green)}.shield{color:var(--blue)}
+main{max-width:1120px;margin:auto;padding:30px 18px}
+.hero{display:grid;grid-template-columns:1.1fr .9fr;gap:22px;align-items:center}
+.hero h1{font-size:clamp(44px,7vw,76px);margin:0}.hero h1 span{color:var(--green)}
+.hero p{font-size:18px;line-height:1.6;color:var(--muted)}
+.panel,.card{background:linear-gradient(145deg,#082335,#061522);border:1px solid var(--line);border-radius:16px;padding:20px;box-shadow:0 15px 45px #0004}
+.note{border:1px solid #1edb75;border-radius:13px;padding:14px;background:#06251e;margin:18px 0;line-height:1.5}
+.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:15px}
+.section{margin-top:30px}.hidden{display:none!important}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+button{border:0;border-radius:10px;padding:11px 16px;font-weight:800;cursor:pointer;background:var(--green);color:#03130b}
+button.alt{background:#0a3048;color:#dff4ff;border:1px solid #185b7c}
+button.danger{background:#451c1c;color:#ffb5b5;border:1px solid #713535}
+button.small{padding:6px 10px;font-size:12px}
+.input,select{width:100%;padding:12px;border-radius:9px;border:1px solid var(--line);background:#03131f;color:white;margin:7px 0 12px}
+.price{font-size:30px;font-weight:900;margin:8px 0}
+.muted{color:var(--muted)}.small{font-size:13px}
+.tag{font-size:12px;padding:5px 8px;border-radius:20px;background:#073e2a;color:#5cff99}
+.pending{background:#4b3b12;color:#ffd66e}.grace{background:#3c3210;color:#ffd66e}.expired{background:#401b1b;color:#ff9b9b}
+.mail{padding:14px;border-bottom:1px solid var(--line)}
+.topline{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}
+.toast{position:fixed;right:15px;bottom:15px;max-width:350px;background:#0b2638;border:1px solid #26749c;border-radius:12px;padding:14px;display:none;z-index:10}
+.stat{font-size:26px;font-weight:900}
+.table{width:100%;border-collapse:collapse}
+.table th,.table td{text-align:left;padding:10px;border-bottom:1px solid var(--line);font-size:13px}
+.file{border:1px dashed #23627f;padding:12px;border-radius:10px;width:100%}
+.paybox{background:#042018;border:1px solid #1edb75;border-radius:12px;padding:14px;margin:10px 0;font-size:14px;line-height:1.7}
+.paybox b{color:var(--green)}
+.copybtn{background:#0a3048;color:#dff4ff;border:1px solid #185b7c;padding:4px 8px;font-size:11px;border-radius:6px;margin-left:6px;cursor:pointer}
+@media(max-width:760px){.hero,.grid{grid-template-columns:1fr}.hero h1{font-size:42px}}
+</style>
+</head>
+<body>
+<header>
+  <div class="nav">
+    <div class="brand"><span class="shield">⬡</span> HUSTLE <span>HUB</span></div>
+    <div id="navRight"><button onclick="openAuth()">Login / Sign up</button></div>
+  </div>
+</header>
+
+<main>
+<section id="landing" class="hero">
+  <div>
+    <h1>HUSTLE <span>HUB</span></h1>
+    <p>Privacy-focused temporary email addresses with a simple 36-hour free trial, wallet funding, subscriptions and a private mailbox dashboard.</p>
+    <div class="note">🛡️ <b>Privacy note:</b> HUSTLE HUB is designed to reduce the need to expose your personal email address. Temporary addresses may be blocked by some websites and are not guaranteed to work with every verification system.</div>
+    <button onclick="openAuth()">Start Free 36-Hour Trial →</button>
+  </div>
+  <div class="panel">
+    <h2>How it works</h2>
+    <p>1. Create an account.</p>
+    <p>2. Choose one country for your free mailbox.</p>
+    <p>3. Use it for up to 36 hours.</p>
+    <p>4. Fund your wallet and submit your payment slip.</p>
+    <p>5. Wait for admin approval.</p>
+    <p>6. Buy weekly, monthly or annual mailboxes.</p>
+  </div>
+</section>
+
+<section id="auth" class="panel hidden section">
+  <h2>Account</h2>
+  <input id="authEmail" class="input" placeholder="Login email" autocomplete="username">
+  <input id="authPassword" type="password" class="input" placeholder="Password (6+ characters)" autocomplete="current-password">
+  <div class="row">
+    <button onclick="register()">Create account</button>
+    <button class="alt" onclick="login()">Log in</button>
+  </div>
+  <p id="authMsg" class="muted"></p>
+</section>
+
+<section id="dashboard" class="hidden section">
+  <div class="topline">
+    <div>
+      <h2>My Dashboard</h2>
+      <p id="welcome" class="muted"></p>
+      <p id="trialInfo" class="small muted"></p>
+    </div>
+    <div class="row">
+      <button class="alt small" onclick="showChangePass()">Change password</button>
+      <button class="alt" onclick="logout()">Log out</button>
+    </div>
+  </div>
+
+  <div class="grid">
+    <div class="card">
+      <div class="muted">Approved balance</div>
+      <div id="wallet" class="price">₦0</div>
+      <div class="small muted">Spendable after payment approval.</div>
+    </div>
+    <div class="card">
+      <div class="muted">Pending balance</div>
+      <div id="pending" class="price">₦0</div>
+      <div class="small muted">Virtual credit awaiting admin approval.</div>
+    </div>
+    <div class="card">
+      <div class="muted">Active mailboxes</div>
+      <div id="mailCount" class="price">0</div>
+    </div>
+  </div>
+
+  <div class="grid section">
+    <div class="card">
+      <h3>🆓 Free 36-hour mailbox</h3>
+      <p class="muted">One mailbox only, in one country. It expires 36 hours after account creation.</p>
+      <select id="freeCountry"></select>
+      <button onclick="getFreeMailbox()">Create free mailbox</button>
+      <p id="freeMsg" class="muted"></p>
+    </div>
+
+    <div class="card">
+      <h3>💳 Fund wallet</h3>
+      <p class="small">Transfer the amount you want to add, then upload your payment slip (JPEG / PNG / WebP / PDF, max 5 MB).</p>
+      <div id="paymentAccount" class="paybox"></div>
+      <input id="fundAmount" type="number" min="1" class="input" placeholder="Amount in ₦">
+      <input id="slip" type="file" class="file" accept="image/jpeg,image/png,image/webp,application/pdf">
+      <button onclick="submitFunding()">I've Paid & Upload Slip</button>
+      <p id="fundMsg" class="muted"></p>
+    </div>
+
+    <div class="card">
+      <h3>🔔 Notifications</h3>
+      <div id="notifications"></div>
+      <button class="alt" onclick="markRead()">Mark all as read</button>
+    </div>
+  </div>
+
+  <div class="card section">
+    <h3>Choose a paid plan</h3>
+    <div class="grid">
+      <div><b>Weekly</b><div class="price">₦7,500</div><p class="small muted">7 days · max 2 active purchases per country</p></div>
+      <div><b>Monthly</b><div class="price">₦18,000</div><p class="small muted">30 days · max 5 active purchases per country</p></div>
+      <div><b>Annual</b><div class="price">₦120,000</div><p class="small muted">365 days · unlimited purchases</p></div>
+    </div>
+    <div class="grid" style="margin-top:15px">
+      <div><label>Country</label><select id="buyCountry"></select></div>
+      <div><label>Plan</label>
+        <select id="buyPlan">
+          <option value="weekly">Weekly — ₦7,500</option>
+          <option value="monthly">Monthly — ₦18,000</option>
+          <option value="annual">Annual — ₦120,000</option>
+        </select>
+      </div>
+      <div><label>&nbsp;</label><button onclick="purchase()">Purchase Mailbox</button></div>
+    </div>
+    <p id="buyMsg" class="muted"></p>
+  </div>
+
+  <div class="card section">
+    <h3>My Mailboxes</h3>
+    <div id="boxes"></div>
+  </div>
+  <div class="card section">
+    <div class="topline">
+      <h3>Inbox</h3>
+      <button class="alt small" onclick="loadDashboard()">Refresh</button>
+    </div>
+    <div id="inbox"></div>
+  </div>
+
+  <!-- Change password modal (simple) -->
+  <div id="passPanel" class="card section hidden">
+    <h3>Change password</h3>
+    <input id="curPass" type="password" class="input" placeholder="Current password">
+    <input id="newPass" type="password" class="input" placeholder="New password (6+)">
+    <div class="row">
+      <button onclick="changePassword()">Update password</button>
+      <button class="alt" onclick="$('passPanel').classList.add('hidden')">Cancel</button>
+    </div>
+    <p id="passMsg" class="muted"></p>
+  </div>
+</section>
+
+<section id="admin" class="hidden section">
+  <div class="topline">
+    <h2>Admin Board</h2>
+    <button class="alt" onclick="showUserDashboard()">User dashboard</button>
+  </div>
+  <div class="grid">
+    <div class="card"><div class="muted">Users</div><div id="aUsers" class="stat">0</div></div>
+    <div class="card"><div class="muted">Pending payments</div><div id="aPending" class="stat">0</div></div>
+    <div class="card"><div class="muted">Approved volume</div><div id="aVolume" class="stat">₦0</div></div>
+  </div>
+  <div class="card section">
+    <h3>Payment approvals</h3>
+    <div id="adminPayments"></div>
+  </div>
+  <div class="card section">
+    <h3>Recent users</h3>
+    <div id="adminUsers"></div>
+  </div>
+</section>
+</main>
+<div id="toast" class="toast"></div>
+
+<script>
+let token = localStorage.getItem("hh_token");
+let refreshTimer = null;
+const $ = id => document.getElementById(id);
+const money = n => "₦" + Number(n || 0).toLocaleString();
+
+function toast(msg) {
+  $("toast").textContent = msg;
+  $("toast").style.display = "block";
+  setTimeout(() => { $("toast").style.display = "none"; }, 3500);
+}
+function openAuth() {
+  $("landing").classList.add("hidden");
+  $("dashboard").classList.add("hidden");
+  $("admin").classList.add("hidden");
+  $("auth").classList.remove("hidden");
+}
+function setAuth(t) {
+  token = t;
+  localStorage.setItem("hh_token", t);
+}
+async function api(url, method = "GET", body = null, form = false) {
+  const o = { method, headers: {} };
+  if (token) o.headers.Authorization = "Bearer " + token;
+  if (form) o.body = body;
+  else if (body) {
+    o.headers["Content-Type"] = "application/json";
+    o.body = JSON.stringify(body);
+  }
+  const r = await fetch(url, o);
+  let d = {};
+  try { d = await r.json(); } catch {}
+  if (r.status === 401) {
+    localStorage.removeItem("hh_token");
+    token = null;
+  }
+  return { ok: r.ok, ...d };
+}
+
+async function register() {
+  const r = await api("/api/register", "POST", {
+    email: $("authEmail").value,
+    password: $("authPassword").value
+  });
+  if (!r.ok) { $("authMsg").textContent = r.error; return; }
+  setAuth(r.token);
+  loadDashboard();
+}
+async function login() {
+  const r = await api("/api/login", "POST", {
+    email: $("authEmail").value,
+    password: $("authPassword").value
+  });
+  if (!r.ok) { $("authMsg").textContent = r.error; return; }
+  setAuth(r.token);
+  loadDashboard();
+}
+async function logout() {
+  await api("/api/logout", "POST");
+  localStorage.removeItem("hh_token");
+  token = null;
+  if (refreshTimer) clearInterval(refreshTimer);
+  location.reload();
+}
+
+function paymentAccountHtml(p) {
+  return `<b>Bank:</b> ${esc(p.bankName)}<br>
+          <b>Account Number:</b> ${esc(p.accountNumber)}
+          <button class="copybtn" onclick="copyText('${esc(p.accountNumber)}')">Copy</button><br>
+          <b>Account Name:</b> ${esc(p.accountName)}`;
+}
+
+async function loadDashboard() {
+  $("landing").classList.add("hidden");
+  $("auth").classList.add("hidden");
+  $("admin").classList.add("hidden");
+  $("dashboard").classList.remove("hidden");
+  const r = await api("/api/dashboard");
+  if (!r.ok) return openAuth();
+
+  $("welcome").textContent = "Signed in as " + r.user.email;
+  $("trialInfo").textContent = r.trialHoursLeft > 0
+    ? `Free trial: ~${r.trialHoursLeft} hours remaining`
+    : "Free trial has ended — fund wallet to buy mailboxes";
+  $("wallet").textContent = money(r.user.wallet);
+  $("pending").textContent = money(r.user.pending_wallet);
+  $("mailCount").textContent = r.boxes.filter(x => x.status === "active").length;
+  $("paymentAccount").innerHTML = paymentAccountHtml(r.paymentAccount);
+  $("freeCountry").innerHTML = r.countries.map(c => `<option>${c}</option>`).join("");
+  $("buyCountry").innerHTML = r.countries.map(c => `<option>${c}</option>`).join("");
+  renderBoxes(r.boxes);
+  renderInbox(r.messages);
+  renderNotifications(r.notifications);
+
+  if (refreshTimer) clearInterval(refreshTimer);
+  refreshTimer = setInterval(() => loadDashboard(), 45000);
+}
+
+function renderBoxes(boxes) {
+  $("boxes").innerHTML = boxes.length
+    ? boxes.map(b => {
+        const tag = b.status === "active" ? "tag" : b.status === "grace" ? "tag grace" : "tag expired";
+        return `<div class="mail">
+          <b>${esc(b.address)}</b>
+          <button class="copybtn" onclick="copyText('${esc(b.address)}')">Copy</button>
+          <span class="${tag}">${b.status}</span>
+          <br><span class="small muted">${esc(b.display_name)} · ${esc(b.country)} · ${esc(b.plan)}</span>
+          <br><span class="small muted">Expires: ${new Date(b.expires_at).toLocaleString()}</span>
+        </div>`;
+      }).join("")
+    : "<p class='muted'>No mailboxes yet.</p>";
+}
+
+function renderInbox(msgs) {
+  $("inbox").innerHTML = msgs.length
+    ? msgs.map(m => `<div class="mail">
+        <b>${esc(m.subject)}</b>
+        <button class="copybtn" onclick="copyText(\`${esc(m.body).replace(/`/g,"")}\`)">Copy body</button>
+        <br><span class="small">${esc(m.sender)} → ${esc(m.address)}</span>
+        <p>${esc(m.body)}</p>
+        <span class="small muted">Auto-delete: ${new Date(m.delete_at).toLocaleTimeString()}</span>
+      </div>`).join("")
+    : "<p class='muted'>No messages yet. Messages auto-delete after 10 minutes.</p>";
+}
+
+function renderNotifications(ns) {
+  $("notifications").innerHTML = ns.length
+    ? ns.slice(0, 8).map(n => `<div class="mail"><b>${esc(n.title)}</b><br><span class="small">${esc(n.body)}</span></div>`).join("")
+    : "<p class='muted'>No notifications.</p>";
+}
+
+async function getFreeMailbox() {
+  const r = await api("/api/free-mailbox", "POST", { country: $("freeCountry").value });
+  $("freeMsg").textContent = r.error || ("Free mailbox: " + r.address);
+  if (r.ok) loadDashboard();
+}
+
+async function submitFunding() {
+  const amount = Number($("fundAmount").value);
+  const file = $("slip").files[0];
+  const fd = new FormData();
+  fd.append("amount", amount);
+  fd.append("slip", file || "");
+  const r = await api("/api/fund", "POST", fd, true);
+  $("fundMsg").textContent = r.error || "Payment submitted. Amount is pending until admin approval.";
+  if (r.ok) {
+    $("fundAmount").value = "";
+    $("slip").value = "";
+    loadDashboard();
+  }
+}
+
+async function purchase() {
+  const r = await api("/api/purchase", "POST", {
+    country: $("buyCountry").value,
+    plan: $("buyPlan").value
+  });
+  $("buyMsg").textContent = r.error || ("Purchased: " + r.address);
+  if (r.ok) loadDashboard();
+}
+
+async function markRead() {
+  await api("/api/notifications/read", "POST");
+  loadDashboard();
+}
+
+function showChangePass() {
+  $("passPanel").classList.remove("hidden");
+  $("passMsg").textContent = "";
+}
+async function changePassword() {
+  const r = await api("/api/change-password", "POST", {
+    currentPassword: $("curPass").value,
+    newPassword: $("newPass").value
+  });
+  $("passMsg").textContent = r.error || "Password updated successfully.";
+  if (r.ok) {
+    $("curPass").value = "";
+    $("newPass").value = "";
+    setTimeout(() => $("passPanel").classList.add("hidden"), 1500);
+  }
+}
+
+function copyText(text) {
+  navigator.clipboard.writeText(text).then(() => toast("Copied!")).catch(() => toast("Copy failed"));
+}
+function esc(s) {
+  return String(s ?? "").replace(/[&<>"']/g, c => ({
+    "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#039;"
+  }[c]));
+}
+
+/* Admin */
+async function adminLogin() {
+  const secret = prompt("Enter admin secret:");
+  if (!secret) return;
+  const r = await fetch("/api/admin/summary", { headers: { "x-admin-secret": secret } });
+  const d = await r.json();
+  if (!r.ok) return alert(d.error || "Admin login failed.");
+  sessionStorage.setItem("hh_admin", secret);
+  showAdmin(d);
+}
+async function showAdmin(data = null) {
+  const secret = sessionStorage.getItem("hh_admin");
+  if (!secret) return adminLogin();
+  if (!data) {
+    const r = await fetch("/api/admin/summary", { headers: { "x-admin-secret": secret } });
+    data = await r.json();
+    if (!r.ok) return adminLogin();
+  }
+  $("landing").classList.add("hidden");
+  $("auth").classList.add("hidden");
+  $("dashboard").classList.add("hidden");
+  $("admin").classList.remove("hidden");
+
+  $("aUsers").textContent = data.stats.users;
+  $("aPending").textContent = data.stats.pendingPayments;
+  $("aVolume").textContent = money(data.stats.approvedVolume);
+
+  $("adminPayments").innerHTML = data.payments.length
+    ? `<table class="table"><tr><th>User</th><th>Amount</th><th>Date</th><th>Action</th></tr>` +
+      data.payments.map(p => `<tr>
+        <td>${esc(p.email)}</td>
+        <td>${money(p.amount)}</td>
+        <td>${new Date(p.created_at).toLocaleString()}</td>
+        <td>
+          <button onclick="approve(${p.id})">Approve</button>
+          <button class="danger" onclick="rejectPay(${p.id})">Reject</button>
+        </td>
+      </tr>`).join("") + "</table>"
+    : "<p class='muted'>No pending payments.</p>";
+
+  $("adminUsers").innerHTML = data.recentUsers?.length
+    ? `<table class="table"><tr><th>Email</th><th>Wallet</th><th>Pending</th><th>Joined</th></tr>` +
+      data.recentUsers.map(u => `<tr>
+        <td>${esc(u.email)}</td>
+        <td>${money(u.wallet)}</td>
+        <td>${money(u.pending_wallet)}</td>
+        <td>${new Date(u.created_at).toLocaleDateString()}</td>
+      </tr>`).join("") + "</table>"
+    : "<p class='muted'>No users yet.</p>";
+}
+async function approve(id) {
+  const note = prompt("Optional approval note:", "Payment slip verified");
+  const secret = sessionStorage.getItem("hh_admin");
+  const r = await fetch("/api/admin/payment/" + id + "/approve", {
+    method: "POST",
+    headers: { "Content-Type": "application/json", "x-admin-secret": secret },
+    body: JSON.stringify({ note })
+  });
+  const d = await r.json();
+  toast(d.error || "Payment approved.");
+  showAdmin();
+}
+async function rejectPay(id) {
+  const note = prompt("Reason for rejection:", "Payment slip could not be verified");
+  const secret = sessionStorage.getItem("hh_admin");
+  const r = await fetch("/api/admin/payment/" + id + "/reject", {
+    method: "POST",
+    headers: { "Content-Type": "application/json", "x-admin-secret": secret },
+    body: JSON.stringify({ note })
+  });
+  const d = await r.json();
+  toast(d.error || "Payment rejected.");
+  showAdmin();
+}
+function showUserDashboard() {
+  if (token) loadDashboard();
+  else location.reload();
+}
+
+if (location.hash === "#admin") showAdmin();
+else if (token) loadDashboard();
+else openAuth();
+</script>
+</body>
+</html>
